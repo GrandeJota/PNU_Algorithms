@@ -7,7 +7,9 @@
 
 /*
 
-2021/03/04 - Palindrome Version 1.0.0
+2021/03/04 - Palindrome Version 1.0.0 => 복잡도 O(n/2+a) 예상
+			 Palindrome Version 1.0.1
+				- 2차 확인 조건 변경
 
 */
 
@@ -24,7 +26,7 @@ int palindrome_sort(char* str, int lens)
 	int i = 0;
 	int half_lens = (int)ceil(double(lens / 2));
 	int index1 = 0, index2 = (lens - 1);
-	int err_cnt = 1, temp_result = 1;
+	int err_cnt = 1, temp_result = 2;		// 1=회문, 2=유사회문 3=회문아님 // temp_result를 쓰는 상황은 최소 유사회문
 
 	for (i = 0; i < half_lens; i++)
 	{
@@ -43,7 +45,7 @@ int palindrome_sort(char* str, int lens)
 		}
 	}
 
-	if (err_cnt != 1)
+	if (err_cnt >= 3)	// 예시 ABCDEDBA 의 경우 필요
 	{
 		temp_result = err_cnt;
 		index1 = 0;
@@ -69,7 +71,8 @@ int palindrome_sort(char* str, int lens)
 	return min(temp_result, err_cnt);
 }
 
-int main() {
+int main()
+{
 	int cnt = 0;
 	int lens = 0;
 
