@@ -1,67 +1,72 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <iostream>
-#include <cstring>
+#include <map>
 
+#include <time.h>
 /*
 
 2021/03/10 - Most Word Version 1.0.0 => 복잡도 O(n^2+n) 예상
 										case no.10 실패 2초 초과
+			 Most Word Version 2.0.0 => C++로 변경 복잡도 O(3n) 예상
+										case no.8,9,10 실패 2초 초과
+			 Most Word Version 2.0.1 => C++로 변경 복잡도 O(2.5n) 예상
+										insert함수의 시간 복잡도를 고려 못했었음
+			 Most Word Version 2.0.2 => C++로 변경 복잡도 O(2n) 예상
+										과반이 나올만큼 집게된뒤 부터 과반을 확인하게 변경
 
 */
 
 using namespace std;
 
-#define MAX_N 1000001
-#define MAX_WORDLEN 50 // 기네스 등재 제일 긴 단어 45자(비공식 189819자)
+map<string, int> input_data;
+string output = "NONE";
 
-char input_data[MAX_N][MAX_WORDLEN] = {};
-int  record_cnt[MAX_N] = { 1 };
-bool checked_index[MAX_N] = { false };
-char output[MAX_WORDLEN] = "NONE";
-
-void word_sorting(int n)
+void word_peak(int n)
 {
-	int j = 0;
-	int half_over_n = (int)((n / 2) + 1);
+	int half_over = (int)((n / 2) + 1);
+	string temp_str;
+	map<string, int>::iterator iter;
+
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+
 	for (int i = 0; i < n; i++)
 	{
-		scanf("%s", input_data[i]);
-		//printf("%s\n", input_data[i]);
-	}
-	for (int j = 0; j < n; j++)
-	{
-		if (checked_index[j] == true)
-			continue;
-
-		for (int i = 1; i < n; i++)
+		cin >> temp_str;
+		if(input_data[temp_str] > 0)
 		{
-			if (!strcmp(input_data[j], input_data[i]))
-			{
-				//printf("index: %d[%s] record: %d\n", i, input_data[j], record_cnt[j]+1);
-				checked_index[i] = true;
-				record_cnt[j]++;
-				if (record_cnt[j]+1 > half_over_n)
-				{
-					strcpy(output, input_data[j]);
-					return;
-				}
-			}
+			input_data[temp_str]++;
+		}
+		else
+			input_data.insert(pair<string, int>(temp_str, input_data[temp_str]++));
+	}
+	for (iter = input_data.begin(); iter != input_data.end(); ++iter)
+	{
+		if (iter->second >= half_over)
+		{
+			output = iter->first;
+			return;
+			//printf("test : %d\n", input_data[temp_str]);
 		}
 	}
 }
 
 int main()
 {
+	clock_t start, end;
 	int n;
-	char word_n1[MAX_WORDLEN] = {};
-
+	start = clock();
 	freopen("words.inp", "r", stdin);
 	freopen("words.out", "w", stdout);
 
-	scanf("%d", &n);
-	word_sorting(n);
-	printf("%s\n", output);
-
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+	cin >> n;
+	//cout << n;
+	word_peak(n);
+	cout << output << "\n";
+	end = clock();
+	printf("%d msec\n", end-start);
 	return 0;
 }
