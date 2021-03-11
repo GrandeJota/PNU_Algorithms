@@ -20,8 +20,6 @@ using namespace std;
 #define MAX_WORDLEN 256 // 기네스 등재 제일 긴 단어 45자(비공식 189819자)
 
 char input_data[MAX_N][MAX_WORDLEN] = {};
-int  record_cnt[MAX_N] = { 1 };
-bool checked_index[MAX_N] = { false };
 char output[MAX_WORDLEN] = "NONE";
 
 int compare(const void* a, const void* b)
@@ -29,13 +27,18 @@ int compare(const void* a, const void* b)
 	return strcmp((char*)a, (char*)b);
 }
 
-void word_sorting(int n)
+void word_sorting()
 {
+	int n;
+	FILE* pFile = NULL;
+	pFile = fopen("words.inp", "r");
+	fgets(input_data[0], MAX_WORDLEN, pFile); // 첫줄 생략
+	n = atoi(input_data[0]);
 	int cnt = 1;
 	int half_over_n = (int)((n / 2));
 	for (int i = 0; i < n; i++)
 	{
-		scanf("%s", input_data[i]);
+		fgets(input_data[i], MAX_WORDLEN, pFile);
 		//printf("%s\n", input_data[i]);
 	}
 	qsort(input_data, n, sizeof(input_data[0]), compare);
@@ -52,28 +55,24 @@ void word_sorting(int n)
 
 		if (cnt >= half_over_n)
 		{
-			strcpy(output, input_data[i]);
+			strcpy(output, strtok(input_data[i], "\n "));
 			return;
 		}
 	}
+	fclose(pFile);
 }
 
 int main()
 {
 	clock_t start, end;
-	int n;
-	char word_n1[MAX_WORDLEN] = {};
-
 	start = clock();
-	freopen("words.inp", "r", stdin);
 	freopen("words.out", "w", stdout);
 
-	scanf("%d", &n);
-	word_sorting(n);
+	word_sorting();
 	printf("%s\n", output);
 
 	end = clock();
-	printf("%d msec\n", end-start);
+	//printf("%d msec\n", end-start);
 
 	return 0;
 }
