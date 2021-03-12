@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS
+ï»¿#define _CRT_SECURE_NO_WARNINGS
 
 #include <iostream>
 #include <cstdio>
@@ -8,18 +8,18 @@
 #include <ctime>
 /*
 
-2021/03/10 - Most Word Version 1.0.0 => º¹Àâµµ O(n^2+n) ¿¹»ó
-										case no.10 ½ÇÆĞ 2ÃÊ ÃÊ°ú
-			 Most Word Version 2.0.0 => C++·Î º¯°æ º¹Àâµµ O(3n) ¿¹»ó
-										case no.8,9,10 ½ÇÆĞ 2ÃÊ ÃÊ°ú
-			 Most Word Version 2.0.1 => C++·Î º¯°æ º¹Àâµµ O(2.5n) ¿¹»ó
-										insertÇÔ¼öÀÇ ½Ã°£ º¹Àâµµ¸¦ °í·Á ¸øÇß¾úÀ½
-			 Most Word Version 2.0.2 => C++·Î º¯°æ º¹Àâµµ O(2n) ¿¹»ó
-										°ú¹İÀÌ ³ª¿Ã¸¸Å­ Áı°ÔµÈµÚ ºÎÅÍ °ú¹İÀ» È®ÀÎÇÏ°Ô º¯°æ
-2021/03/11 - Most Word Version 3.0.0 => º¹Àâµµ O(n) ¿¹»ó
-										ÇØ½Ã¶õ °ÍÀ» Ã£¾Ò´Ù
+2021/03/10 - Most Word Version 1.0.0 => ï¿½ï¿½ï¿½âµµ O(n^2+n) ï¿½ï¿½ï¿½ï¿½
+										case no.10 ï¿½ï¿½ï¿½ï¿½ 2ï¿½ï¿½ ï¿½Ê°ï¿½
+			 Most Word Version 2.0.0 => C++ë¡œ ë³€ê²½ ë³µì¡ë„ O(3n) ì˜ˆìƒ
+										case no.8,9,10 ì‹¤íŒ¨ 2ì´ˆ ì´ˆê³¼
+			 Most Word Version 2.0.1 => C++ë¡œ ë³€ê²½ ë³µì¡ë„ O(2.5n) ì˜ˆìƒ
+										insertí•¨ìˆ˜ì˜ ì‹œê°„ ë³µì¡ë„ë¥¼ ê³ ë ¤ ëª»í–ˆì—ˆìŒ
+			 Most Word Version 2.0.2 => C++ë¡œ ë³€ê²½ ë³µì¡ë„ O(2n) ì˜ˆìƒ
+										ê³¼ë°˜ì´ ë‚˜ì˜¬ë§Œí¼ ì§‘ê²Œëœë’¤ ë¶€í„° ê³¼ë°˜ì„ í™•ì¸í•˜ê²Œ ë³€ê²½
+2021/03/11 - Most Word Version 3.0.0 => ë³µì¡ë„ O(n) ì˜ˆìƒ
+										í•´ì‹œë€ ê²ƒì„ ì°¾ì•˜ë‹¤
 2021/03/12 - Most Word Version 3.0.0
-										Doxygen¿ë ÁÖ¼® Ãß°¡ ¹× ÄÚµå refactoring
+										Doxygenìš© ì£¼ì„ ì¶”ê°€ ë° ì½”ë“œ refactoring
 										Git update
 */
 
@@ -35,9 +35,9 @@ string hash_value[MAX_BUCKET] = {};
 char   input_data[MAX_N][MAX_WLEN] = {};
 
 /**
- * \brief  hash °è»ê(string to key)
- * \detail MAX_BUCKET¸¸Å­ ±¸ºĞÀÌ °¡µµ·Ï ³ª¸ÓÁö °è»ê¿¡ Ãß°¡ÇÔ
- *		   Hach CollisionÀÌ 0% ´Â ¾Æ´Òµí ÇÏÁö¸¸ ÃÖ´ëÇÑ ÇÇÇÏ°Ô °è»êÄ¡¸¦ ³ÖÀ½
+ * \brief  hash ê³„ì‚°(string to key)
+ * \detail MAX_BUCKETë§Œí¼ êµ¬ë¶„ì´ ê°€ë„ë¡ ë‚˜ë¨¸ì§€ ê³„ì‚°ì— ì¶”ê°€í•¨
+ *		   Hach Collisionì´ 0% ëŠ” ì•„ë‹ë“¯ í•˜ì§€ë§Œ ìµœëŒ€í•œ í”¼í•˜ê²Œ ê³„ì‚°ì¹˜ë¥¼ ë„£ìŒ
  * \param  str : string
  * \param  len : string length
  * \return hashed key value
@@ -55,13 +55,13 @@ int cal_hash(char* str, int len)
 }
 
 /**
- * \brief   ÃÖ´ë °Ë»ö¾î Ã£±â
- * \detail  hashµÈ key°ªÀ¸·Î Bucket ºĞ·ùÈÄ °°Àº BucketÀÌ ºÒ·¯¿Ã¶§ Count Áõ°¡·Î Áßº¹ È½¼öµµ ÇÑ¹ø¿¡ °è»ê
- *          read¿Í µ¿½Ã¿¡ BucketºĞ·ù¸¦ ÇÏ¹Ç·Î ÇÔ¼ö ºĞ¸® ¾ÈÇÔ
- * \param   n : ÆÄÀÏ¿¡ µé¾îÀÖ´Â String¼ö
+ * \brief   ìµœëŒ€ ê²€ìƒ‰ì–´ ì°¾ê¸°
+ * \detail  hashëœ keyê°’ìœ¼ë¡œ Bucket ë¶„ë¥˜í›„ ê°™ì€ Bucketì´ ë¶ˆëŸ¬ì˜¬ë•Œ Count ì¦ê°€ë¡œ ì¤‘ë³µ íšŸìˆ˜ë„ í•œë²ˆì— ê³„ì‚°
+ *          readì™€ ë™ì‹œì— Bucketë¶„ë¥˜ë¥¼ í•˜ë¯€ë¡œ í•¨ìˆ˜ ë¶„ë¦¬ ì•ˆí•¨
+ * \param   n : íŒŒì¼ì— ë“¤ì–´ìˆëŠ” Stringìˆ˜
  * \return  None
- * \warning Hash collisionÀÌ ÀÏ¾î³¯°æ¿ì ´ëÃ³ ¾øÀ½
- * \should  Hash collision ´ëºñ Ã³¸® ¹æ½Ä Ãß°¡ ÇÊ¿ä
+ * \warning Hash collisionì´ ì¼ì–´ë‚ ê²½ìš° ëŒ€ì²˜ ì—†ìŒ
+ * \should  Hash collision ëŒ€ë¹„ ì²˜ë¦¬ ë°©ì‹ ì¶”ê°€ í•„ìš”
  * \date    2021-03-12
  * \author  Grandech
  */
@@ -95,21 +95,21 @@ void find_peak(int n)
 int main()
 {
 	clock_t start, end;
-	//------½Ã°£ ±â·Ï ½ÃÀÛ------//
+	//------ì‹œê°„ ê¸°ë¡ ì‹œì‘------//
 	start = clock();
 
-	//------½Ã½ºÅÛ ½ÃÀÛ------//
+	//------ì‹œìŠ¤í…œ ì‹œì‘------//
 	int n;
 
 	freopen("words.inp", "r", stdin);
-	freopen("words.out", "w", stdout); 
+	freopen("words.out", "w", stdout);
 
 	scanf("%d", &n);
 
 	find_peak(n);
 	cout << output << "\n";
 
-	//------½Ã°£ ±â·Ï ³¡------//
+	//------ì‹œê°„ ê¸°ë¡ ë------//
 	end = clock();
 	//printf("%d msec\n", end-start);
 	return 0;
