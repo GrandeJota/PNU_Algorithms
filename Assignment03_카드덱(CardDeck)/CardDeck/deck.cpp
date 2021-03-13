@@ -9,6 +9,9 @@
 
 2021/03/12 - Card Deck Version 0.0.0 => 연립일차를 위한 데이터 처리과정까지 완료
 										두가지 미지수를 구할수있는 코드를 구현하면 완성
+2021/03/13 - Card Deck Version 0.0.1 => x+y=a, xy=b
+										x=a/2+sqrt((a/2)^2-b)
+										y=a/2-sqrt((a/2)^2-b)
 
 */
 
@@ -50,7 +53,8 @@ void find_missing(int n)
 	int total_n = n * (n + 1) / 2;
 	int temp;
 	int input_cnt = 0, ab_cnt = 0;
-	int first_miss = 0, second_miss = 0;
+	int missing_val[2] = { 0, 0 };
+	double half_a = 0.0, sqmin_ab = 0.0, mk_minus = 1.0;
 
 	for (int i = 0; i < n; i++)
 	{
@@ -75,9 +79,23 @@ void find_missing(int n)
 		}
 	}
 	ab_cnt = (n - input_cnt);
-	first_miss = total_n - sums;
-	printf("%d\n", first_miss);
-	printf("%lf * 10^%d\n", facto_ori, overs_ori);
+	missing_val[0] = total_n - sums;
+	if (ab_cnt == 2)
+	{
+		half_a = (double)missing_val[0] / 2.0;
+		sqmin_ab = ((half_a * half_a) - (double)facto_ori);
+		if (sqmin_ab < 0.0)
+		{
+			mk_minus = -1.0;
+		}
+		sqmin_ab *= mk_minus;
+		//printf("%f %f\n", half_a, sqmin_ab);
+		missing_val[0] = (int)(half_a - mk_minus * sqrt(sqmin_ab)+0.5);
+		missing_val[1] = (int)(half_a + mk_minus * sqrt(sqmin_ab)+0.5);
+
+		printf("%d\n", min(missing_val[0], missing_val[1]));
+	}
+	printf("%d\n", max(missing_val[0], missing_val[1]));
 
 	return;
 }
@@ -97,6 +115,6 @@ int main()
 	find_missing(n);
 
 	end = clock();
-	printf("%d msec\n", end-start);
+	//printf("%d msec\n", end-start);
 	return 0;
 }  
