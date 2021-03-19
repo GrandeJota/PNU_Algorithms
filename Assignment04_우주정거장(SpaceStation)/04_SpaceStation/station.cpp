@@ -12,13 +12,27 @@
 
 */
 
+#define MOVE_MIN_WEI 0.00000001
+#define MOVE_CEN_WEI 0.5
+
 using namespace std;
 
 int a[3], b[3], c[3], d[3];
-double p[3][3], q[3][3];
-double center_p[3], center_q[3];
-double range_p = 0.0, range_q = 0.0 ;
 
+typedef struct station
+{
+	double start[3];
+	double center[3];
+	double end[3];
+	double c2s[3];
+	double c2e[3];
+
+	double s2s_r;
+	double c2s_r;
+	double e2s_r;
+}station_t;
+
+station_t AB, CD;
 void find_centerP(double* a, double* b, double* center)
 {
 	center[0] = (a[0] + b[0]) / 2.0;
@@ -27,6 +41,20 @@ void find_centerP(double* a, double* b, double* center)
 	/*printf("center %f %f %f\n", a[0], b[0], center[0]);
 	printf("center %f %f %f\n", a[1], b[1], center[1]);
 	printf("center %f %f %f\n", a[2], b[2], center[2]);*/
+}
+void find_moveC2SP(double* c, double* s, double* tmp_P)
+{
+	double t = MOVE_CEN_WEI - MOVE_MIN_WEI;
+	tmp_P[0] = ((1 - t) * c[0]) + (t * s[0]);
+	tmp_P[1] = ((1 - t) * c[1]) + (t * s[1]);
+	tmp_P[2] = ((1 - t) * c[2]) + (t * s[2]);
+}
+void find_moveC2EP(double* c, double* e, double* tmp_P)
+{
+	double t = MOVE_CEN_WEI + MOVE_MIN_WEI;
+	tmp_P[0] = ((1 - t) * c[0]) + (t * e[0]);
+	tmp_P[1] = ((1 - t) * c[1]) + (t * e[1]);
+	tmp_P[2] = ((1 - t) * c[2]) + (t * e[2]);
 }
 
 double get_range(double* a, double* c)
@@ -37,79 +65,84 @@ double get_range(double* a, double* c)
 	return range;
 }
 
-double cmp_trirange(double* ranges, int* index)
+void move_points(double* dst, double* src)
 {
-	double min_range;
-	min_range = min(ranges[0], min(ranges[1], ranges[2]));
-	//printf("%f\n", min_range);
-	if (ranges[0] == min_range)
+	memcpy(dst, src, sizeof(double)*3);
+}
+double get_range3times(station_t station1, station_t* station2)
+{
+	station2->s2s_r = get_range(station1.start, station2->start);
+	station2->c2s_r = get_range(station1.start, station2->center);
+	station2->e2s_r = get_range(station1.start, station2->end);
+
+	return min(station2->s2s_r, min(station2->c2s_r, station2->e2s_r));
+}
+void get_shortestIn3(station_t station1, station_t* station2)
+{
+	double min_r, cmp_r1, cmp_r2;
+	double tmp_P[3];
+	min_r = min(station2->s2s_r, min(station2->c2s_r, station2->e2s_r));
+	if (station2->s2s_r == min_r)
 	{
-		index[0] = 0;
-		index[1] = 1;
+		move_points(station2->end, station2->center);
 	}
-	else if (ranges[1] == min_range)
+	else if (station2->c2s_r == min_r)
 	{
-		if ((ranges[0] - ranges[2]) <= 0)
+		cmp_r1 = get_range(station2->c2s, station1.start);
+		cmp_r2 = get_range(station2->c2e, station1.start);
+		if (cmp_r1 >= cmp_r2)
 		{
-			index[0] = 1;
-			index[1] = 0;
+			move_points(station2->start, station2->center);
 		}
 		else
 		{
-			index[0] = 1;
-			index[1] = 2;
+			move_points(tmp_P, station2->start);
+			move_points(station2->start, station2->center);
+			move_points(station2->end, tmp_P);
 		}
 	}
-	else if (ranges[2] == min_range)
+	else if (station2->e2s_r == min_r)
 	{
-		index[0] = 2;
-		index[1] = 1;
+		move_points(tmp_P, station2->end);
+		move_points(station2->end, station2->center);
+		move_points(station2->start, tmp_P);
 	}
-	return min_range;
 }
-
+void Pointinit(station_t* station)
+{
+	find_centerP(station->start, station->end, station->center);
+	find_moveC2SP(station->center, station->start, station->c2s);
+	find_moveC2EP(station->center, station->end, station->c2e);
+}
 double find_short()
 {
-	double result = 0.0, temp_result[3];
-	double temp_rp[3], temp_rq[3];
-	int keep_index[2] = {0};
-	double tmp_p[3], tmp_q[3];
-
+	double result1, result2;
+	int cnt = 0;
 	while (1)
 	{
-		temp_rp[0] = get_range(p[0], q[0]);
-		temp_rp[1] = get_range(p[0], q[1]);
-		temp_rp[2] = get_range(p[0], q[2]);
-		range_p = cmp_trirange(temp_rp, keep_index);
-		/*printf("%d %d\n", keep_index[0], keep_index[1]);
-		printf("%f %f %f\n", q[0][0], q[0][1], q[0][2]);
-		printf("%f %f %f\n", q[1][0], q[1][1], q[1][2]);
-		printf("%f %f %f\n", q[2][0], q[2][1], q[2][2]);*/
+		Pointinit(&AB);
+		Pointinit(&CD);
 
-		memcpy(tmp_q, q[keep_index[0]], sizeof(q[0]));
-		memcpy(q[2], q[keep_index[1]], sizeof(q[2]));
-		memcpy(q[0], tmp_q, sizeof(q[0]));
-		find_centerP(q[0], q[2], q[1]);
+		result1 = get_range3times(AB, &CD);
+		get_shortestIn3(AB, &CD);
+		Pointinit(&CD);
 
-		temp_rp[0] = get_range(q[0], p[0]);
-		temp_rp[1] = get_range(q[0], p[1]);
-		temp_rp[2] = get_range(q[0], p[2]);
-		range_q = cmp_trirange(temp_rp, keep_index);
-		/*printf("%d %d\n", keep_index[0], keep_index[1]);
-		printf("%f %f %f\n", p[0][0], p[0][1], p[0][2]);
-		printf("%f %f %f\n", p[1][0], p[1][1], p[1][2]);
-		printf("%f %f %f\n\n", p[2][0], p[2][1], p[2][2]);*/
+		result2 = get_range3times(CD, &AB);
+		get_shortestIn3(CD, &AB);
+		Pointinit(&AB);
 
-		memcpy(tmp_p, p[keep_index[0]], sizeof(p[0]));
-		memcpy(p[2], p[keep_index[1]], sizeof(p[2]));
-		memcpy(p[0], tmp_p, sizeof(p[0]));
-		find_centerP(p[0], p[2], p[1]);
-		//printf("%f %f\n\n", range_p, range_q);
-		if (abs(range_p - range_q) <= 0.00000001)
-			break;
+		if (abs(result1 - result2) < MOVE_MIN_WEI)
+		{
+			cnt++;
+			if (cnt > 1)
+			{
+				break;
+			}
+		}
+		else
+			cnt = 0;
 	}
-	result = range_p;
-	return result;
+	return min(result1, result2);
 }
 
 int main()
@@ -121,16 +154,16 @@ int main()
 	scanf("%d %d %d", &a[0], &a[1], &a[2]);
 	scanf("%d %d %d", &b[0], &b[1], &b[2]);
 	scanf("%d %d %d", &c[0], &c[1], &c[2]);
-	scanf("%d %d %d", &d[0], &d[1], &d[2]);
+	scanf("%d %d %d", &d[0], &d[1], &d[2]);	
+	AB.start[0] = (double)a[0]; AB.start[1] = (double)a[1]; AB.start[2] = (double)a[2];
+	AB.end[0] = (double)b[0]; AB.end[1] = (double)b[1]; AB.end[2] = (double)b[2];
+	CD.start[0] = (double)c[0]; CD.start[1] = (double)c[1]; CD.start[2] = (double)c[2];
+	CD.end[0] = (double)d[0]; CD.end[1] = (double)d[1]; CD.end[2] = (double)d[2];
 
-	p[0][0] = (double)a[0]; p[0][1] = (double)a[1]; p[0][2] = (double)a[2];
-	p[2][0] = (double)b[0]; p[2][1] = (double)b[1]; p[2][2] = (double)b[2];
-	q[0][0] = (double)c[0]; q[0][1] = (double)c[1]; q[0][2] = (double)c[2];
-	q[2][0] = (double)d[0]; q[2][1] = (double)d[1]; q[2][2] = (double)d[2];
-	find_centerP(p[0], p[2], p[1]);
-	find_centerP(q[0], q[2], q[1]);
+	//printf("%f %f %f %f %f\n", AB.start[0], AB.center[0], AB.end[0], AB.c2s[0], AB.c2e[0]);
+	//printf("%f %f %f %f %f\n", CD.start[0], CD.center[0], CD.end[0], CD.c2s[0], CD.c2e[0]);
 
-	result = ceil(find_short());
+	result = (int)ceil(find_short());
 	printf("%d\n", result);
 	return 0;
 }
