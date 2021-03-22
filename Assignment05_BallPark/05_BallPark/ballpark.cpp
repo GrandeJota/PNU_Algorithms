@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS
+ï»¿#define _CRT_SECURE_NO_WARNINGS
 
 #include <iostream>
 #include <cstdio>
@@ -6,6 +6,11 @@
 #include <queue>
 #include <vector>
 
+/*
+
+2021/03/22 - Ball Park Version 1.0.0 => ì¡°ê±´ë¬¸ ì¶”ê°€ë¡œ ëª¨ë“  case í†µê³¼
+
+*/
 #define MAX_SIZE	1002
 using namespace std;
 
@@ -19,7 +24,7 @@ struct compare {
 	}
 };
 
-// ÁÂÃø ÇÏ´Ü (x,y) = (1,1) ºÎÅÍ ½ÃÀÛ
+// ì¢Œì¸¡ í•˜ë‹¨ (x,y) = (1,1) ë¶€í„° ì‹œìž‘
 int input_data[MAX_SIZE][MAX_SIZE];
 int checked_data[MAX_SIZE][MAX_SIZE];
 priority_queue<pair<int, int>, vector<pair<int, int>>, compare> xy_point;
@@ -33,7 +38,7 @@ int find_MaxPoint(int n, int m, int maxed)
 		{
 			if (maxed == checked_data[i][j])
 			{
-				xy_point.push({ j - (maxed - 1), n - (i - 1) - (maxed - 1) });
+				xy_point.push({ j - (maxed - 1) - 1, n - (i - 1) - (maxed - 1) - 1 });
 				cnt++;
 			}
 		}
@@ -49,14 +54,14 @@ int find_square(int n, int m)
 	{
 		for (int j = 2; j <= m; j++)
 		{
-			if (input_data[i][j] == 0)
+			if (input_data[i][j] == 0 && input_data[i][j - 1] != 1 && input_data[i + 1][j - 1] != 1 && input_data[i + 1][j] != 1)
 			{
-				checked_data[i][j] += (min(checked_data[i + 1][j - 1], min(checked_data[i + 1][j], checked_data[i][j - 1])) + 1);
+				checked_data[i][j] = (min(checked_data[i + 1][j - 1], min(checked_data[i + 1][j], checked_data[i][j - 1])) + 1);
 				keep_max = max(keep_max, checked_data[i][j]);
 			}
 		}
 	}
-	return keep_max;
+	return keep_max + 1;
 }
 
 void find_BallParkArea(int n, int m)
@@ -64,7 +69,7 @@ void find_BallParkArea(int n, int m)
 	int keep_max = 0, cnt;
 
 	keep_max = find_square(n, m);
-	cnt = find_MaxPoint(n, m, keep_max);
+	cnt = find_MaxPoint(n, m, keep_max-1);
 
 	printf("%d %d\n", keep_max, cnt);
 	for (int i = 0; i < cnt; i++)
@@ -72,6 +77,14 @@ void find_BallParkArea(int n, int m)
 		printf("%d %d\n", xy_point.top().first, xy_point.top().second);
 		xy_point.pop();
 	}
+	/*for (int i = 1; i <= n; i++)
+	{
+		for (int j = 1; j <= m; j++)
+		{
+			printf("%d", checked_data[i][j]);
+		}
+		printf("\n");
+	}*/
 }
 
 int main()
